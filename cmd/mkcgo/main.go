@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+
+	"github.com/microsoft/go-crypto-darwin/internal/cgotool"
 )
 
 const copyright = "// Copyright (c) Microsoft Corporation.\n// Licensed under the MIT License.\n"
@@ -21,7 +23,11 @@ func main() {
 		log.Fatalf("failed to write copyright file: %v", err)
 	}
 
-	args := []string{"go", "run", "github.com/golang-fips/openssl/v2/cmd/mkcgo@c0d27a96a1fcc67f43fa323330c228632cfb912e"}
+	pkg, err := cgotool.MkcgoPackage()
+	if err != nil {
+		log.Fatalf("failed to get mkcgo package: %v", err)
+	}
+	args := []string{"go", "run", pkg}
 	args = append(args, "-copyright", tempFile.Name())
 	args = append(args, os.Args[1:]...)
 	cmd := exec.Command(args[0], args[1:]...)
